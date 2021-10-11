@@ -2,9 +2,12 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
+// Connection
 const connectDB = require("./connect");
 
+
 const userModel = require("./user");
+const jobPost = require("./jobpost");
 
 const app = express();
 
@@ -14,7 +17,8 @@ app.use(cors())
 app.get("/", async (req, res) => {
     try{
         const user = await userModel.find();
-        return res.json({user});
+        const jobs = await jobPost.find();
+        return res.json({user, jobs});
     } catch (error) {
         return res.status(500).json({ error: error.message})
     }
@@ -62,7 +66,18 @@ app.post("/user/new", async (req, res) => {
     }
 })
 
-app.listen(process.env.PORT, () => {
+app.post("/job/new", async (req, res) => {
+    try{
+        const { newJob } = req.body;
+
+    await jobPost.create(newJob);
+    return res.json({message: "Job Created"})
+    } catch (error) {
+        return res.status(500).json({ error: error.message})
+    }
+})
+
+app.listen(4000, () => {
     connectDB()
     .then((data)=>{
         console.log("server is running")
